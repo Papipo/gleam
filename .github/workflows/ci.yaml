@@ -190,6 +190,12 @@ jobs:
         working-directory: ./test/project_erlang_windows
         if: ${{ runner.os == 'Windows' && matrix.run-integration-tests }}
 
+      - name: test/project_export_package_info
+        run: |
+          gleam export package-info --out package-info.json
+          cat package-info.json
+        working-directory: ./test/project_export_package_info
+
       - name: test/external_only_javascript
         run: ./test.sh
         working-directory: ./test/external_only_javascript

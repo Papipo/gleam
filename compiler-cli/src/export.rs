@@ -2,9 +2,12 @@ use camino::Utf8PathBuf;
 use gleam_core::{
     analyse::TargetSupport,
     build::{Codegen, Compile, Mode, Options, Target},
+    config::Dependencies,
+    io::{Content, OutputFile},
     paths::ProjectPaths,
     Result,
 };
+use serde::{Deserialize, Serialize};
 
 #[cfg(target_os = "windows")]
 static ENTRYPOINT_FILENAME: &str = "entrypoint.ps1";
@@ -15,6 +18,17 @@ static ENTRYPOINT_FILENAME: &str = "entrypoint.sh";
 static ENTRYPOINT_TEMPLATE: &str = include_str!("../templates/erlang-shipment-entrypoint.ps1");
 #[cfg(not(target_os = "windows"))]
 static ENTRYPOINT_TEMPLATE: &str = include_str!("../templates/erlang-shipment-entrypoint.sh");
+
+#[derive(Deserialize, Serialize)]
+struct PackageInfoExport {
+    name: String,
+    version: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    gleam: Option<String>,
+    pub dependencies: Dependencies,
+    #[serde(rename = "dev-dependencies")]
+    pub dev_dependencies: Dependencies,
+}
 
 // TODO: start in embedded mode
 // TODO: test
@@ -144,6 +158,18 @@ pub fn package_interface(paths: &ProjectPaths, out: Utf8PathBuf) -> Result<()> {
     built.root_package.attach_doc_and_module_comments();
 
     let out = gleam_core::docs::generate_json_package_interface(out, &built.root_package);
+    crate::fs::write_outputs_under(&[out], paths.root())?;
+    Ok(())
+}
+
+pub fn package_info(paths: &ProjectPaths, out: Utf8PathBuf) -> Result<()> {
+    let export: PackageInfoExport = crate::config::parse(paths.root_config())?;
+    let out = OutputFile {
+        path: out,
+        content: Content::Text(
+            serde_json::to_string(&export).expect("JSON package info serialisation"),
+        ),
+    };
     crate::fs::write_outputs_under(&[out], paths.root())?;
     Ok(())
 }

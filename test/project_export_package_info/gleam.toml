@@ -1,0 +1,31 @@
+name = "project_export_package_info"
+version = "1.0.0"
+gleam = ">= 1.8.0"
+licences = ["Apache-2.0"]
+description = "Test project to test config export"
+target = "erlang"
+repository = { type = "github", user = "example", repo = "my_project" }
+links = [
+  { title = "Home page", href = "https://example.com" },
+  { title = "Other site", href = "https://another.example.com" },
+]
+internal_modules = ["my_app/internal", "my_app/internal/*"]
+
+[dependencies]
+gleam_stdlib = ">= 0.18.0 and < 2.0.0"
+gleam_erlang = ">= 0.2.0 and < 2.0.0"
+gleam_http = ">= 2.1.0 and < 3.0.0"
+# Local dependencies can be specified with a path
+my_other_project = { path = "../my_other_project" }
+
+[dev-dependencies]
+gleeunit = ">= 1.0.0 and < 2.0.0"
+
+[documentation]
+pages = [
+  { title = "My Page", path = "my-page.html", source = "./path/to/my-page.md" },
+]
+
+[erlang]
+application_start_module = "my_app/application"
+extra_applications = ["inets", "ssl"]

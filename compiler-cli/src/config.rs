@@ -57,14 +57,23 @@ pub fn root_config(paths: &ProjectPaths) -> Result<PackageConfig, Error> {
 }
 
 pub fn read(config_path: Utf8PathBuf) -> Result<PackageConfig, Error> {
-    let toml = crate::fs::read(&config_path)?;
-    let config: PackageConfig = toml::from_str(&toml).map_err(|e| Error::FileIo {
+    let config: PackageConfig = parse(config_path)?;
+    config.check_gleam_compatibility()?;
+    Ok(config)
+}
+
+pub fn parse<T>(path: Utf8PathBuf) -> Result<T, Error>
+where
+    T: serde::de::DeserializeOwned,
+{
+    let toml = crate::fs::read(&path)?;
+    let config: T = toml::from_str(&toml).map_err(|e| Error::FileIo {
         action: FileIoAction::Parse,
         kind: FileKind::File,
-        path: config_path,
+        path: path,
         err: Some(e.to_string()),
     })?;
-    config.check_gleam_compatibility()?;
+
     Ok(config)
 }
 
