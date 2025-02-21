@@ -25,8 +25,9 @@ struct PackageInfoExport {
     version: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     gleam: Option<String>,
+    #[serde(default)]
     pub dependencies: Dependencies,
-    #[serde(rename = "dev-dependencies")]
+    #[serde(default, rename = "dev-dependencies")]
     pub dev_dependencies: Dependencies,
 }
 
