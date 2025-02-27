@@ -26,9 +26,18 @@ struct PackageInfoExport {
     #[serde(skip_serializing_if = "Option::is_none")]
     gleam: Option<String>,
     #[serde(default)]
-    pub dependencies: Dependencies,
+    dependencies: Dependencies,
     #[serde(default, rename = "dev-dependencies")]
-    pub dev_dependencies: Dependencies,
+    dev_dependencies: Dependencies,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    erlang: Option<ErlangConfig>,
+}
+
+#[derive(Deserialize, Serialize)]
+struct ErlangConfig {
+    #[serde(default)]
+    application_start_module: Option<String>,
+    extra_applications: Vec<String>,
 }
 
 // TODO: start in embedded mode
